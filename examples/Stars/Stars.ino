@@ -1,8 +1,13 @@
+/*
+ * The Classic parallax starfield
+ *
+ * Public domain by Tim Savage
+ */
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Seeed_TFT2.h>
 #include <SPI.h>
 
-#define NUM_STARS 40
+#define NUM_STARS 60
 
 unsigned int x[NUM_STARS];
 unsigned int y[NUM_STARS];
@@ -24,10 +29,10 @@ void setup() {
 
 void loop() {
   for (int i = 0; i < NUM_STARS; i++) {
-    Tft.drawPixel(y[i], x[i], BLACK);
-    x[i]-=v[i];
-    if (x[i] <= 0) {
-      x[i] = Tft.width();
+    Tft.drawPixel(x[i], y[i], BLACK);
+    x[i]+=v[i];
+    if (x[i] >= Tft.width()) {
+      x[i] = 0;
       y[i] = random(0, Tft.height());
     }
     Tft.drawPixel(x[i], y[i], WHITE);
