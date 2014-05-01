@@ -103,13 +103,16 @@
 
 
 // Commands
-#define TFT_NOOP	0x00
+#define ILI9341_NOP	    0x00
 
+#define ILI9341_DINVOFF 0x20
+#define ILI9341_DINVON  0x21
 
-#define TFT_CASET   0x2A
-#define TFT_PASET   0x2B
-#define TFT_RAMWR   0x2C
-#define TFT_RAMRD   0x2E
+#define ILI9341_CASET   0x2A
+#define ILI9341_PASET   0x2B
+#define ILI9341_RAMWR   0x2C
+#define ILI9341_RAMRD   0x2E
+
 
 class Seeed_TFT2 : public Adafruit_GFX
 {
@@ -165,8 +168,10 @@ public:
 		drawPixel(int16_t x, int16_t y, uint16_t color),
 		drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color),
 		drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color),
+		fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color),
 		fillScreen(uint16_t color),
-		fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+		invertDisplay(boolean i);
+		
 };
 
 extern Seeed_TFT2 Tft;
