@@ -21,8 +21,8 @@
 
 */
 
-#include <Seeed_TFT2.h>
 #include <SPI.h>
+#include "Seeed_TFT2.h"
 
 Seeed_TFT2::Seeed_TFT2() 
 	: Adafruit_GFX(TFT_WIDTH, TFT_HEIGHT) 
@@ -182,22 +182,73 @@ void Seeed_TFT2::setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y
 
 void Seeed_TFT2::drawPixel(int16_t x, int16_t y, uint16_t color)
 {
+  switch (getRotation()) {
+  case 1:
+    gfx_swap(x, y);
+    x = WIDTH - x - 1;
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    break;
+  case 3:
+    gfx_swap(x, y);
+    y = HEIGHT - y - 1;
+    break;
+  }
+  
 	setAddrWindow(x, y, x, y);
-    sendData(color);
+  sendData(color);
 }
 
 void Seeed_TFT2::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color)
 {
-	setAddrWindow(x + w, y, x, y);
-    for(int i=0; i < w; i++) {
+  switch (getRotation()) {
+  case 0:
+    setAddrWindow(x, y, x + w, y);
+    break;
+  case 1:
+    y = HEIGHT - y - 1;
+    setAddrWindow(y, x, y, x + w);
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    setAddrWindow(x - w, y, x, y);
+    break;
+  case 3:
+    x = WIDTH - x - 1;
+    setAddrWindow(y, x - w, y, x);
+    break;
+  }
+      
+  for(int i=0; i < w; i++) {
 		sendData(color);
 	}
 }
 
 void Seeed_TFT2::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color)
 {
-	setAddrWindow(x, y, x, y + h);
-    for(int i=0; i < h; i++) {
+  switch (getRotation()) {
+  case 0:
+    setAddrWindow(x, y, x, y + h);
+    break;
+  case 1:
+    y = HEIGHT - y - 1;
+    setAddrWindow(y, x, y + h, x);
+    break;
+  case 2:
+    x = WIDTH - x - 1;
+    y = HEIGHT - y - 1;
+    setAddrWindow(x, y - h, x, y);
+    break;
+  case 3:
+    x = WIDTH - x - 1;
+    setAddrWindow(y - h, x, y, x);
+    break;
+  }
+  
+  for(int i=0; i < h; i++) {
 		sendData(color);
 	}
 }
@@ -212,16 +263,30 @@ void Seeed_TFT2::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t c
 {
 	// rudimentary clipping (drawChar w/big text requires this)
 	if((x >= _width) || (y >= _height)) return;
-	if((x + w - 1) >= _width)  w = _width  - x;
-	if((y + h - 1) >= _height) h = _height - y;
+	if((x + w) >= _width)  w = _width  - x;
+	if((y + h) >= _height) h = _height - y;
 
-	setAddrWindow(x, y, x + w - 1, y + h - 1);
+  switch (getRotation()) {
+  case 0:
+    setAddrWindow(x, y, x + w - 1, y + h - 1);
+    break;
+  case 1:
+    setAddrWindow(WIDTH - h - y, x, WIDTH - y, x + w - 1);
+    break;
+  case 2:
+    setAddrWindow(WIDTH - w - x, HEIGHT - y - h, WIDTH - x, HEIGHT - y);
+    break;
+  case 3:
+    setAddrWindow(y, HEIGHT - w - x, y + h - 1, HEIGHT - x);
+    break;
+  }
+
 	uint8_t hi = color >> 8, lo = color;
 
 	TFT_DC_HIGH;
 	TFT_CS_LOW;
-	for(y = h; y > 0; y--) {
-		for( x = w; x>0; x--) {
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
 			SPI.transfer(hi);
 			SPI.transfer(lo);
 		}
