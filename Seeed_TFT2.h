@@ -31,8 +31,9 @@
 #endif
 #include <avr/pgmspace.h>
 #include <Adafruit_GFX.h>
-
 #include <SPI.h>
+
+#define gfx_swap(a, b) { uint16_t t = a; a = b; b = t; }
 
 //Basic Colors
 #define RED		0xf800
